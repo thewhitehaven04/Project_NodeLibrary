@@ -87,7 +87,7 @@ exports.bookinstance_delete_get = asyncHandler(async (req, res, next) => {
   const bookInstance = await BookInstance.findById(req.params.id).exec();
 
   if (bookInstance === null) {
-    const err = new Error('Book not found');
+    const err = new Error('Book instance not found');
     err.status = 404;
     return next(err);
   }
@@ -103,7 +103,7 @@ exports.bookinstance_delete_post = asyncHandler(async (req, res, next) => {
   const bookInstance = await BookInstance.findById(req.params.id).exec();
 
   if (bookInstance === null) {
-    const err = new Error('Book not found');
+    const err = new Error('Book instance not found');
     err.status = 404;
     return next(err);
   }
@@ -120,7 +120,7 @@ exports.bookinstance_update_get = asyncHandler(async (req, res, next) => {
   ]);
 
   if (bookInstance === null) {
-    const err = new Error();
+    const err = new Error('Book instance not found');
     err.status = 404;
     next(err);
   }

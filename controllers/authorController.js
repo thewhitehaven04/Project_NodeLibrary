@@ -122,10 +122,59 @@ exports.author_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display Author update form on GET.
 exports.author_update_get = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Author update GET');
+  const author = await Author.findById(req.params.id);
+
+  if (author === null) {
+    const err = new Error('Author not found!');
+    err.status = 404;
+    next(err);
+  }
+
+  res.render('author_form', {
+    title: 'Update author',
+    author: author,
+  });
 });
 
 // Handle Author update on POST.
-exports.author_update_post = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Author update POST');
-});
+exports.author_update_post = [
+  body('first_name')
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage('First name must be specified.')
+    .isAlphanumeric()
+    .withMessage('First name has non-alphanumeric characters.'),
+  body('family_name')
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage('Family name must be specified.')
+    .isAlphanumeric()
+    .withMessage('Family name has non-alphanumeric characters.'),
+  body('date_of_birth', 'Invalid date of birth')
+    .optional({ values: 'falsy' })
+    .isISO8601()
+    .toDate(),
+  body('date_of_death', 'Invalid date of death')
+    .optional({ values: 'falsy' })
+    .isISO8601()
+    .toDate(),
+
+  asyncHandler(async (req, res, next) => {
+    const err = validationResult(req);
+
+    if (!err.isEmpty()) {
+      res.render('author_form', {
+        title: 'Update author',
+        author: req.body,
+        errors: err.array(),
+      });
+      return;
+    }
+
+    const updateAuthor = new Author({ ...req.body, _id: req.params.id });
+    await Author.findByIdAndUpdate(req.params.id, updateAuthor, {});
+    res.redirect('/catalog/authors');
+  }),
+];
